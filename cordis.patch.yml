@@ -1,0 +1,19 @@
+# dsh-hard-gate bundle patch.
+#
+# The plugin manager applies this after the base and web-app layers. Override any
+# key from your profile's own cordis.patch.yml by targeting `id: hard-gate`; a
+# patch replaces the whole `config` object, so restate every key you need.
+#
+# Defaults are tuned for "stricter than the built-in preset, still usable":
+#   - workspace containment holds even in danger-full-access;
+#   - a whole-file `write` needs a read to EOF first;
+#   - recursive / wildcard / pipeline deletes ask a human;
+#   - disk, security-control and `git clean -x` commands are refused;
+#   - 25 mutations per 10 minutes ask, 60 refuse.
+- insert:
+    - id: hard-gate
+      name: dsh-hard-gate
+      config:
+        enforceWorkspaceOnly: true
+        requireFullRead: true
+        shellOutsideWorkspace: deny

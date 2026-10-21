@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Hard Gate">
+  <defs>
+    <linearGradient id="gate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#123a86"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#gate)" d="M32 4 8 13v19c0 14 10 23 24 28 14-5 24-14 24-28V13L32 4Z"/>
+  <path fill="#ffffff" d="M20 25h6v17h-6zM38 25h6v17h-6zM29 25h6v5h-6zM29 34h6v5h-6z"/>
+</svg>

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Hard Gate",
+    "description": "Stricter permission review and a workspace sandbox that survives Full access: blocks out-of-workspace writes, whole-file overwrites after partial reads, and mass deletes; zips a restore point before mutations and offers a context-free Auto reviewer."
+  }
+}

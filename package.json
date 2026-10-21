@@ -1,0 +1,60 @@
+{
+  "name": "dsh-hard-gate",
+  "version": "0.1.0",
+  "description": "Stricter permission review and a workspace sandbox that survives danger-full-access",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "plugin",
+    "permission",
+    "sandbox",
+    "security"
+  ],
+  "license": "MIT",
+  "author": "YYFDFS (https://github.com/yyfdfsyyf-source)",
+  "homepage": "https://github.com/yyfdfsyyf-source/dsh-hard-gate#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yyfdfsyyf-source/dsh-hard-gate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yyfdfsyyf-source/dsh-hard-gate/issues"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "lib",
+    "locale",
+    "cordis.patch.yml",
+    "icon.svg",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": "*"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/schemastery": {
+      "optional": true
+    }
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
