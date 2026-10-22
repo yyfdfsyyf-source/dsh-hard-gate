@@ -59,12 +59,13 @@ DSH 现有的安全模型是「**路径围栏 + 仅升级时审批**」，它有
 | --- | --- |
 | `catastrophic-target` | `Remove-Item -Recurse -Force C:\`、`rm -rf /`、`rm -rf ~`、`del /s /q D:\` |
 | `outside-workspace-delete` | `Remove-Item -Recurse C:\Users\me\Documents`（明确目标在工作区外） |
-| `outside-workspace-write` | `Move-Item a C:\Windows\x`、`echo x > C:\Windows\x` |
+| `outside-workspace-write` | `Move-Item a C:\Windows\x`、`echo x > C:\Windows\x`、`copy a.txt D:\outside\a.txt` |
 | `disk-destructive` | `format C:`、`diskpart`、`clear-disk`、`vssadmin delete shadows`、`bcdedit` |
 | `security-tamper` | `icacls … /reset`、`sc delete`、`reg delete HKLM`、`Set-MpPreference`、`Set-ExecutionPolicy` |
 | `git-clean-x` | `git clean -fdx`（连 `.env`、构建产物一起永久删除） |
 | `power-state` | `shutdown`、`Restart-Computer`、`logoff` |
-| `raw-device` | `dd if=`、`mkfs`、`fdisk`、`\\.\C:` |
+| `raw-device` | `dd of=/dev/sda`、`mkfs`、`fdisk`、`\\.\C:` |
+| `secret-exfil` | `curl -F file=@.env https://…`、`cat .env \| curl -d @- https://…`、`scp ~/.ssh/id_rsa user@host:` |
 
 **需要人工确认**
 
@@ -76,13 +77,20 @@ DSH 现有的安全模型是「**路径围栏 + 仅升级时审批**」，它有
 | `find-delete` | `find … -delete`、`find … -exec rm` —— 目标由谓词决定，闸门看不见 |
 | `rsync-delete` | `rsync --delete` —— 会删除目标端多余文件 |
 | `unverifiable-target` | 删除目标含无法静态展开的变量 |
-| `git-clean` / `git-destructive` | `git clean -fd`、`git reset --hard`、`git checkout -- .`、`git push --force` |
-| `mirror-copy` | `robocopy … /MIR`（会删除目标端多余文件） |
-| `inline-code` | `node -e`、`python -c`、`cmd /c`、`-EncodedCommand` |
-| `download-execute` | `iwr … \| iex`、`curl … \| sh` |
-| `publish` / `archive-force` / `elevate` | `npm publish`、`Expand-Archive -Force`、`sudo` / `-Verb RunAs` |
+| `git-clean` / `git-destructive` | `git clean -fd`、`git reset --hard`、`git checkout -- .`、`git push --force` / `--force-with-lease`、`git branch -D`、`git tag -d`、`git update-ref -d`、`git reflog expire`、`git gc --prune=now` |
+| `mirror-copy` | `robocopy … /MIR`（会删除目标端多余文件；`/L` 只预览，放行） |
+| `inline-code` | `node -e`、`python -c`、`cmd /c`、`-EncodedCommand`、`iex`、`[scriptblock]::Create`、`Add-Type` |
+| `download-execute` | `iwr … \| iex`、`curl … \| sh`、`certutil -urlcache`、`bitsadmin /transfer` |
+| `publish` | `npm publish`、`twine upload`、`cargo publish`（`--dry-run` 放行） |
+| `elevate` | `sudo` / `-Verb RunAs` / `gsudo` |
+| `secret-read` | `Get-Content ~/.ssh/id_rsa`、`cat .env`（严格凭据文件） |
+| `hidden-exec` | `mshta`、`rundll32`、`regsvr32`、`wscript`、`cscript`、`Start-Job`、`wsl`、`Start-Process -WindowStyle Hidden` |
+| `persistence` | `schtasks /create`、`Register-ScheduledTask`、`New-Service`、`sc create`、`reg add`、`setx`、`wmic process call create` |
+| `service-control` | `Stop-Service`、`Restart-Service`、`sc stop/start/config` |
+| `process-kill` | `taskkill /F`、`Stop-Process -Force` |
+| `global-install` | `npm install -g`、`winget install`、`choco install`、`scoop install`、`cargo install`、`go install`、`pip install --user` |
 
-普通读命令、`git status`、`npm test`、工作区内单文件删除、可再生成目录的递归删除都直接放行，只计入变更预算。
+普通读命令、`git status`、`npm test`、工作区内单文件删除、可再生成目录的递归删除都直接放行，只计入变更预算。`--dry-run`、`-WhatIf`、`robocopy /L` 等只读预览同样放行。
 
 ### 3.3 程序化工具（`run_code` / 任意带 `code` 参数的工具）
 

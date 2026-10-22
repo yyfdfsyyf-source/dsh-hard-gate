@@ -120,7 +120,7 @@ test('history, mirror, inline code, publish, and elevation ask', () => {
   assert.equal(ruleOf('robocopy C:\\a C:\\b /MIR'), 'mirror-copy')
   assert.equal(ruleOf('node -e "require(\'fs\').rmSync(\'x\')"'), 'inline-code')
   assert.equal(ruleOf('npm publish'), 'publish')
-  assert.equal(ruleOf('Expand-Archive -Path a.zip -DestinationPath . -Force'), 'archive-force')
+  assert.equal(ruleOf('Expand-Archive -Path a.zip -DestinationPath . -Force'), 'local-write')
   assert.equal(ruleOf('sudo apt install x'), 'elevate')
 })
 
