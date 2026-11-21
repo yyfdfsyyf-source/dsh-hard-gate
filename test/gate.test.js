@@ -263,3 +263,36 @@ test('resolveConfig keeps the documented defaults', () => {
   assert.ok(config.protectedPaths.length > 0)
   assert.equal(config.mutationTools.write, 'file_path')
 })
+
+test('ruleSeverity parses overrides and ignores invalid values', () => {
+  const config = resolveConfig({
+    ruleSeverity: { 'git-destructive': 'deny', publish: 'off', elevate: 'bogus', secret: 'allow' },
+  })
+  assert.equal(config.ruleSeverity['git-destructive'], 'deny')
+  assert.equal(config.ruleSeverity.publish, 'off')
+  assert.equal(config.ruleSeverity.secret, 'allow')
+  assert.equal(config.ruleSeverity.elevate, undefined)
+  assert.deepEqual(resolveConfig({}).ruleSeverity, {})
+})
+
+test('ruleSeverity can escalate, downgrade and disable shell rules', async () => {
+  const workspace = await makeWorkspace()
+  const shell = (cmd, rules) => makeGate(workspace, { ruleSeverity: rules }).preExecute(
+    call('pwsh', { command: cmd }), next,
+  )
+
+  // Default: git push --force asks.
+  assert.equal((await shell('git push --force origin main', {})).kind, 'ask')
+  // Escalated to deny.
+  assert.equal((await shell('git push --force origin main', { 'git-destructive': 'deny' })).kind, 'deny')
+  // Downgraded to allow.
+  assert.equal((await shell('git push --force origin main', { 'git-destructive': 'allow' })).kind, 'allow')
+  // Turned off entirely (next() result is returned).
+  assert.equal((await shell('git push --force origin main', { 'git-destructive': 'off' })).kind, 'allow')
+  // A deny rule can be downgraded to ask.
+  assert.equal((await shell('Remove-Item -Recurse -Force C:\\', { 'catastrophic-target': 'ask' })).kind, 'ask')
+  // A deny rule can be turned off.
+  assert.equal((await shell('Remove-Item -Recurse -Force C:\\', { 'catastrophic-target': 'off' })).kind, 'allow')
+  // Unrelated rules are unaffected.
+  assert.equal((await shell('git clean -fdx', { 'git-destructive': 'off' })).kind, 'deny')
+})

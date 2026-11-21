@@ -66,6 +66,7 @@ DSH 现有的安全模型是「**路径围栏 + 仅升级时审批**」，它有
 | `power-state` | `shutdown`、`Restart-Computer`、`logoff` |
 | `raw-device` | `dd of=/dev/sda`、`mkfs`、`fdisk`、`\\.\C:` |
 | `secret-exfil` | `curl -F file=@.env https://…`、`cat .env \| curl -d @- https://…`、`scp ~/.ssh/id_rsa user@host:` |
+| `self-protection` | 删除 `~/.dsh/hard-gate`、`hard-gate/backups`、`audit.jsonl` 等闸门自身资产 |
 
 **需要人工确认**
 
@@ -89,6 +90,14 @@ DSH 现有的安全模型是「**路径围栏 + 仅升级时审批**」，它有
 | `service-control` | `Stop-Service`、`Restart-Service`、`sc stop/start/config` |
 | `process-kill` | `taskkill /F`、`Stop-Process -Force` |
 | `global-install` | `npm install -g`、`winget install`、`choco install`、`scoop install`、`cargo install`、`go install`、`pip install --user` |
+| `database-destructive` | `DROP DATABASE`、`DROP TABLE`、`TRUNCATE TABLE`、`redis-cli FLUSHALL`、`db.x.drop()` |
+| `database-exfil` | `mysqldump … > file`、`pg_dump … \| curl` |
+| `cloud-destructive` | `terraform destroy`、`kubectl delete/drain`、`helm uninstall`、`aws … delete/terminate`、`docker system prune` |
+| `permission-grant` | `chmod -R 777`、`icacls … /grant Everyone:F /T`、`chown -R` |
+| `log-tamper` | `wevtutil cl`、`Clear-EventLog`、`rm /var/log/*`、`truncate … .evtx` |
+| `hosts-tamper` | `>> /etc/hosts`、`netsh`、`iptables -F`、`ufw disable`、`Set-DnsClientServerAddress` |
+| `supply-chain-config` | `npm config set registry`、`pip config set`、`git config --global … insteadOf` |
+| `shell-history-wipe` | `history -c`、`unset HISTFILE`、`rm .bash_history` |
 
 普通读命令、`git status`、`npm test`、工作区内单文件删除、可再生成目录的递归删除都直接放行，只计入变更预算。`--dry-run`、`-WhatIf`、`robocopy /L` 等只读预览同样放行。
 
@@ -202,6 +211,7 @@ node lib/restore.js purge --days 7
 | `recycleBin` | `auto` | `auto`（仅 Windows）/ `always` / `never` |
 | `recycleBinMaxBytes` | `16 MiB` | 送入回收站的压缩包上限；`0` 关闭 |
 | `mutationTools` | `{write:'file_path', edit:'file_path', str_replace_editor:'path'}` | 追加"工具名 → 路径参数名"映射 |
+| `ruleSeverity` | `{}` | 按规则 id 覆盖严重级别：`deny` / `ask` / `allow` / `off`（跳过）。例：`{'git-destructive':'deny','publish':'off'}` |
 
 平台默认受保护根（运行期计算）：`~/.ssh`、`~/.dsh`、`~/.aws`、`~/.azure`、`~/.gnupg`、`~/.kube`、`~/.config/gh`、`~/AppData`、`%WINDIR%`、`%ProgramFiles%`、`%ProgramFiles(x86)%`、`%ProgramData%`、各盘 `System Volume Information` 与 `$Recycle.Bin`（POSIX 下为 `/etc`、`/usr`、`/bin`、`/sbin`、`/boot`、`/dev`、`/proc`、`/sys`、`/var/lib`）。
 

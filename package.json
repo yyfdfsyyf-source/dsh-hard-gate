@@ -1,6 +1,6 @@
 {
   "name": "dsh-hard-gate",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Stricter permission review and a workspace sandbox that survives danger-full-access",
   "keywords": [
     "deepseek-harness",

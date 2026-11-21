@@ -1,13 +1,14 @@
 # dsh-hard-gate 效果测评与 DSH 0.2.2 兼容性报告
 
 日期：2026-11-21
-插件版本：0.2.0（本次由 0.1.0 升级）
+插件版本：0.3.0（本次由 0.2.0 升级）
 目标 DSH 版本：0.2.2-rc.5（本机 D:/deepseek-h/resources/app.asar/dsh/package.json）
 
 ## 1. 结论摘要
 
 - 核心闸门 API 在 DSH 0.2.2-rc.5 中仍然存在，插件可直接加载，钩子签名无需改动。
 - 规则层 M1 扩充后：60 条代表性命令探针 60/60 符合预期；101 个测试 100 通过、1 跳过。
+- v0.3.0 新增 9 个拦截族（数据库、云/容器、权限、日志篡改、hosts、供应链配置、shell 历史、闸门自保护）与 `ruleSeverity` 按规则严重级别覆盖功能；测试增至 103 项，102 通过、1 跳过。
 - 主要剩余风险是脚本间接执行、词法混淆、run_code 外层不审查、读取完整性默认 fail-open，以及 Auto 审查是模型层而非确定性层。
 
 ## 2. DSH 0.2.2-rc.5 兼容性验证
@@ -56,7 +57,14 @@
 - 复核 DSH 0.2.2-rc.5：五个闸门 API（pre-execute / result / guard / workingDirectory / permissionPresets / approval）与 schemastery 3.19.0、cordis 4.1.0 均未变化，插件继续兼容，无需改代码。
 - 核心规则代码与 61 条矩阵测试已在 commit 5dcc10f 推送到 GitHub。
 
-## 5. 后续建议
+## 5. v0.3.0 新增拦截族与新功能
+
+- 新增拒绝规则：`self-protection`（删除 `~/.dsh/hard-gate`、audit.jsonl、还原点仓库）。
+- 新增询问规则：`database-destructive`、`database-exfil`、`cloud-destructive`、`permission-grant`、`log-tamper`、`hosts-tamper`、`supply-chain-config`、`shell-history-wipe`。
+- 新增配置 `ruleSeverity`：按规则 id 覆盖为 `deny` / `ask` / `allow` / `off`，可把默认询问升级为拒绝、或把误报规则关闭；已通过 escalate/downgrade/off 三类测试。
+- 19/19 新规则探针符合预期，规则已固化进 command-matrix 测试。
+
+## 6. 后续建议
 
 - 加审计 JSONL 以统计真实会话中 ask/deny 触发频率（此前该改动被拒绝，未实现）。
 - 为脚本文件增加静态扫描（低优先级，复杂度高）。
