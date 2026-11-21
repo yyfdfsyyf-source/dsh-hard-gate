@@ -2,15 +2,15 @@
 
 日期：2026-11-21
 插件版本：0.2.0（本次由 0.1.0 升级）
-目标 DSH 版本：0.2.2-rc.3（本机 D:/deepseek-h/resources/app.asar/dsh/package.json）
+目标 DSH 版本：0.2.2-rc.5（本机 D:/deepseek-h/resources/app.asar/dsh/package.json）
 
 ## 1. 结论摘要
 
-- 核心闸门 API 在 DSH 0.2.2-rc.3 中仍然存在，插件可直接加载，钩子签名无需改动。
+- 核心闸门 API 在 DSH 0.2.2-rc.5 中仍然存在，插件可直接加载，钩子签名无需改动。
 - 规则层 M1 扩充后：60 条代表性命令探针 60/60 符合预期；101 个测试 100 通过、1 跳过。
 - 主要剩余风险是脚本间接执行、词法混淆、run_code 外层不审查、读取完整性默认 fail-open，以及 Auto 审查是模型层而非确定性层。
 
-## 2. DSH 0.2.2-rc.3 兼容性验证
+## 2. DSH 0.2.2-rc.5 兼容性验证
 
 | 插件使用的能力 | DSH 0.2.2 实现位置 | 结论 |
 | --- | --- | --- |
@@ -52,7 +52,8 @@
 ## 4. 本次迭代
 
 - 版本号 0.1.0 -> 0.2.0，标记规则层扩充完成。
-- 新增本报告，明确 DSH 0.2.2-rc.3 兼容性边界。
+- 新增本报告，明确 DSH 0.2.2-rc.5 兼容性边界。
+- 复核 DSH 0.2.2-rc.5：五个闸门 API（pre-execute / result / guard / workingDirectory / permissionPresets / approval）与 schemastery 3.19.0、cordis 4.1.0 均未变化，插件继续兼容，无需改代码。
 - 核心规则代码与 61 条矩阵测试已在 commit 5dcc10f 推送到 GitHub。
 
 ## 5. 后续建议
